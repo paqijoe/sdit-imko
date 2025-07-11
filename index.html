@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Twibbon SDIT INSAN MULIA KOTAGAJAH</title>
+    <title>Aplikasi Twibbon</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -103,7 +103,7 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-5">
     <div class="container">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">BUAT TWIBBON ANDA DIMARI</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Buat Twibbon Anda</h1>
 
         <div class="grid grid-cols-1 gap-6 w-full mb-6">
             <!-- Unggah Foto Anda -->
@@ -190,6 +190,9 @@
 
         // URL bingkai Twibbon default
         const defaultTwibbonFrameUrl = 'https://i.imgur.com/bYNXhtb.jpg';
+
+        // PENTING: Atur crossOrigin untuk menghindari masalah CORS saat mengekspor kanvas
+        twibbonFrame.crossOrigin = "Anonymous"; 
 
         // Muat bingkai Twibbon default saat skrip dimuat
         twibbonFrame.onload = () => {
@@ -501,6 +504,10 @@
                     const link = document.createElement('a');
                     link.download = 'twibbon_anda.png';
                     const dataURL = twibbonCanvas.toDataURL('image/png');
+                    // Periksa apakah dataURL kosong atau tidak valid (misalnya, jika kanvas terkontaminasi)
+                    if (dataURL === 'data:,' || dataURL.length < 100) { // data:, adalah URL default jika gagal
+                        throw new Error('Kanvas terkontaminasi atau dataURL kosong. Periksa masalah CORS.');
+                    }
                     console.log('Data URL dibuat (potongan):', dataURL.substring(0, 50) + '...'); // Log sebagian URL
                     link.href = dataURL;
                     document.body.appendChild(link);
@@ -510,7 +517,12 @@
                     console.log('Proses unduh selesai.');
                 } catch (error) {
                     console.error('Terjadi kesalahan saat mengunduh Twibbon:', error);
-                    showMessage('Gagal mengunduh Twibbon. Coba lagi atau periksa konsol.', 'error');
+                    // Pesan kesalahan yang lebih spesifik untuk masalah CORS
+                    if (error.message.includes('Kanvas terkontaminasi')) {
+                        showMessage('Gagal mengunduh: Gambar bingkai mungkin memiliki masalah CORS. Coba unggah bingkai ke layanan hosting gambar lain yang mendukung CORS (misalnya, Postimages.org) dan perbarui URL.', 'error');
+                    } else {
+                        showMessage('Gagal mengunduh Twibbon. Coba lagi atau periksa konsol untuk detail.', 'error');
+                    }
                 }
             } else {
                 console.log('Tombol dinonaktifkan. Tidak dapat mengunduh.');
