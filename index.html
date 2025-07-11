@@ -494,15 +494,26 @@
 
         // Tombol Proses dan Unduh gabungan
         processButton.addEventListener('click', () => {
+            console.log('Tombol Proses & Unduh diklik.');
             if (!processButton.disabled) {
-                const link = document.createElement('a');
-                link.download = 'twibbon_anda.png';
-                link.href = twibbonCanvas.toDataURL('image/png');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showMessage('Twibbon berhasil diunduh!', 'success');
+                console.log('Tombol tidak dinonaktifkan. Melanjutkan proses unduh.');
+                try {
+                    const link = document.createElement('a');
+                    link.download = 'twibbon_anda.png';
+                    const dataURL = twibbonCanvas.toDataURL('image/png');
+                    console.log('Data URL dibuat (potongan):', dataURL.substring(0, 50) + '...'); // Log sebagian URL
+                    link.href = dataURL;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showMessage('Twibbon berhasil diunduh!', 'success');
+                    console.log('Proses unduh selesai.');
+                } catch (error) {
+                    console.error('Terjadi kesalahan saat mengunduh Twibbon:', error);
+                    showMessage('Gagal mengunduh Twibbon. Coba lagi atau periksa konsol.', 'error');
+                }
             } else {
+                console.log('Tombol dinonaktifkan. Tidak dapat mengunduh.');
                 showMessage('Harap unggah foto Anda dan pastikan bingkai dimuat.', 'error');
             }
         });
